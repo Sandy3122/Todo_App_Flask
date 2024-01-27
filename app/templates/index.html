@@ -125,53 +125,60 @@
 <!-- Include Bootstrap JS and Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function addTask() {
+    // Function to add a new task
+function addTask() {
+    // Retrieve title from the input field
     const title = document.getElementById('title').value.trim();
 
+    // Check if the title is empty
     if (!title) {
         alert('Task title cannot be empty. Please provide a title.');
         return;
     }
 
+    // Set default status to 'Pending'
     const status = 'Pending';
 
+    // Send a POST request to add the task
     fetch('/add_task', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `title=${title}&status=${status}`
     })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.result);
-            window.location.reload();
-        })
-        .catch(error => console.error('Error adding task:', error));
+    .then(response => response.json())
+    .then(data => {
+        // Display result and reload the page
+        alert(data.result);
+        window.location.reload();
+    })
+    .catch(error => console.error('Error adding task:', error));
 }
 
+// Function to edit/update a task
 function editUpdateTask(taskId, button) {
+    // Retrieve elements related to the task
     var titleElement = document.getElementById('title-' + taskId);
     var statusElement = document.getElementById('status-' + taskId);
     var checkboxElement = document.getElementById('completed-checkbox-' + taskId);
 
+    // Check if the button contains the 'bi-pencil-square' icon
     if (button.innerHTML.includes('bi-pencil-square')) {
-        // Change the task title to a Bootstrap-styled input field for editing
+        // Change UI to allow editing (input fields, select menu, and button styles)
         titleElement.innerHTML = '<input type="text" id="edit-title-' + taskId + '" class="form-control" value="' + titleElement.innerText + '">';
-
-        // Change the task status to a Bootstrap-styled select menu for editing
-        var statusOptions = ['Pending', 'In Progress', 'Completed'];
-        var currentStatus = statusElement.innerText;
         statusElement.innerHTML = '<select id="edit-status-' + taskId + '" class="form-select">' +
-            statusOptions.map(option => '<option value="' + option + '" ' + (option === currentStatus ? 'selected' : '') + '>' + option + '</option>').join('') +
-            '</select>';
-
-        // Change the button icon to "bi-floppy-fill" and apply Bootstrap styles
+            ['Pending', 'In Progress', 'Completed'].map(option =>
+                '<option value="' + option + '" ' + (option === statusElement.innerText ? 'selected' : '') + '>' + option + '</option>'
+            ).join('') +
+        '</select>';
         button.innerHTML = '<i class="bi bi-save"></i>';
         button.classList.remove('btn-primary');
         button.classList.add('btn-success');
     } else {
+        // Retrieve updated title and status
         var newTitle = document.getElementById('edit-title-' + taskId).value;
         var newStatus = document.getElementById('edit-status-' + taskId).value;
 
+        // Send a PUT request to update the task
         fetch('/update_task/' + taskId, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
@@ -179,22 +186,18 @@ function editUpdateTask(taskId, button) {
         })
         .then(response => response.json())
         .then(data => {
+            // Update UI based on the response and revert button styles
             if (data.result === 'Task updated successfully') {
-                // Update the task UI
                 titleElement.innerText = newTitle;
                 statusElement.innerText = newStatus;
-
-                // Check the checkbox and add strikethrough if status is "Completed"
                 checkboxElement.checked = newStatus === 'Completed';
                 titleElement.style.textDecoration = newStatus === 'Completed' ? 'line-through' : 'none';
-
                 alert(data.result);
             } else {
                 alert('Failed to update task.');
             }
         })
         .finally(() => {
-            // Change the button icon back to "bi-pencil-square" and revert Bootstrap styles
             button.innerHTML = '<i class="bi bi-pencil-square"></i>';
             button.classList.remove('btn-warning');
             button.classList.add('btn-primary');
@@ -202,18 +205,23 @@ function editUpdateTask(taskId, button) {
     }
 }
 
+// Function to delete a task
 function deleteTask(taskId) {
+    // Send a DELETE request to delete the task
     fetch('/delete_task/' + taskId, {
         method: 'DELETE'
     })
     .then(response => response.json())
     .then(data => {
+        // Display result and reload the page
         alert(data.result);
         window.location.reload();
     });
 }
 
+// Function to toggle the completed status of a task
 function toggleCompleted(taskId) {
+    // Retrieve elements related to the task
     var statusElement = document.getElementById('status-' + taskId);
     var titleElement = document.getElementById('title-' + taskId);
     var checkboxElement = document.getElementById('completed-checkbox-' + taskId);
@@ -223,25 +231,23 @@ function toggleCompleted(taskId) {
         checkboxElement.setAttribute('data-original-status', statusElement.innerText);
     }
 
+    // Check if the checkbox is checked
     if (checkboxElement.checked) {
-        // Update status to "Completed" and add strikethrough to the title
+        // Update UI and send a PUT request to mark the task as completed
         statusElement.innerText = 'Completed';
         titleElement.style.textDecoration = 'line-through';
-
-        // Update the status in the database
         updateStatusInDatabase(taskId, titleElement.innerText, 'Completed');
     } else {
-        // If unchecked, revert to the original status and remove strikethrough
+        // Update UI and send a PUT request to revert to the original status
         statusElement.innerText = checkboxElement.getAttribute('data-original-status');
         titleElement.style.textDecoration = 'none';
-
-        // Update the status in the database
         updateStatusInDatabase(taskId, titleElement.innerText, statusElement.innerText);
     }
 }
 
+// Function to update the task status in the database
 function updateStatusInDatabase(taskId, newTitle, newStatus) {
-    // Update the status in the database
+    // Send a PUT request to update the task status
     fetch('/update_task/' + taskId, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
@@ -249,10 +255,12 @@ function updateStatusInDatabase(taskId, newTitle, newStatus) {
     })
     .then(response => response.json())
     .then(data => {
+        // Display an alert if the update is not successful
         if (data.result !== 'Task updated successfully') {
             alert('Failed to update task status.');
         }
     });
 }
+
 </script>
 </html>
