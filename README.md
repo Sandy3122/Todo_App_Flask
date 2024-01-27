@@ -16,8 +16,6 @@ This project implements a basic To-Do List web application where users can add, 
     - [Configure MongoDB](#3-configure-mongodb)
     - [Run the Application](#4-run-the-application)
 4. [Project Structure](#project-structure)
-5. [License](#license)
-6. [Acknowledgments](#acknowledgments)
 
 ## Features
 
@@ -34,20 +32,20 @@ This project implements a basic To-Do List web application where users can add, 
 
 ## Getting Started
 
-1. Clone the Repository:
+1. **Clone the Repository:**
 
     ```bash
     git clone https://github.com/your-username/flask-todo-list.git
     cd flask-todo-list
     ```
 
-2. Install Dependencies:
+2. **Install Dependencies:**
 
     ```bash
     pip install -r requirements.txt
     ```
 
-3. Configure MongoDB:
+3. **Configure MongoDB:**
 
     - Make sure MongoDB is installed and running.
     - Update the MongoDB URI in `config/__init__.py`:
@@ -56,7 +54,7 @@ This project implements a basic To-Do List web application where users can add, 
       app.config['MONGO_URI'] = 'mongodb://localhost:27017/todo'
       ```
 
-4. Run the Application:
+4. **Run the Application:**
 
     ```bash
     python run.py
